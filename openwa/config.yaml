@@ -1,0 +1,86 @@
+name: OpenWA Assist Bridge
+version: "0.1.0"
+slug: openwa_assist
+description: OpenWA WhatsApp gateway bridged to Home Assistant Assist
+url: https://github.com/mactron254/homeassistant-openwa-assist-addon
+arch:
+  - amd64
+  - aarch64
+
+startup: application
+boot: auto
+init: false
+ingress: false
+homeassistant_api: true
+
+ports:
+  2785/tcp: 2785
+  2786/tcp: 2786
+
+ports_description:
+  2785/tcp: OpenWA dashboard and native API
+  2786/tcp: OpenWA Assist helper API
+
+webui: "http://[HOST]:[PORT:2785]/"
+
+map:
+  - type: addon_config
+    read_only: false
+
+options:
+  api_master_key: ""
+  openwa_api_key: ""
+  session_id: ""
+  log_level: "info"
+  engine_type: "baileys"
+  whatsapp:
+    allowed_senders: []
+    recipients:
+      primary: ""
+  assist:
+    enabled: true
+    language: "es"
+    agent_id: ""
+    pipeline_id: ""
+    device_id: ""
+    conversation_ttl_hours: 24
+    audio:
+      enabled: true
+      response_mode: "voice_input_or_requested"
+      include_text_with_audio: true
+      max_audio_seconds: 120
+    safety:
+      confirm_before_patterns:
+        - "desbloquea"
+        - "cerradura"
+        - "alarma"
+        - "abre garaje"
+        - "abre puerta"
+
+schema:
+  api_master_key: password?
+  openwa_api_key: password?
+  session_id: str?
+  log_level: list(debug|info|warn|error)
+  engine_type: list(baileys|whatsapp-web.js)
+  whatsapp:
+    allowed_senders:
+      - str
+    recipients:
+      primary: str?
+  assist:
+    enabled: bool
+    language: str
+    agent_id: str?
+    pipeline_id: str?
+    device_id: str?
+    conversation_ttl_hours: int(1,)
+    audio:
+      enabled: bool
+      response_mode: list(always|voice_input_or_requested|requested|voice_input|never)
+      include_text_with_audio: bool
+      max_audio_seconds: int(1,)
+    safety:
+      confirm_before_patterns:
+        - str
+
