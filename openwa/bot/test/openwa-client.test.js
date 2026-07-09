@@ -29,3 +29,19 @@ test('sendAudio posts OpenWA voice note payload', async () => {
   assert.equal(payload.base64, Buffer.from('audio').toString('base64'));
 });
 
+
+test('updateWebhook puts webhook payload', async () => {
+  let called;
+  const client = new OpenWaClient('key', {
+    fetch: async (url, init) => {
+      called = { url, init };
+      return { ok: true, status: 200, text: async () => '{"ok":true}' };
+    },
+  });
+
+  await client.updateWebhook('home', 'webhook-1', { url: 'http://127.0.0.1:2786/webhook/openwa', secret: 'secret' });
+
+  assert.equal(called.init.method, 'PUT');
+  assert.match(called.url, /\/api\/sessions\/home\/webhooks\/webhook-1$/);
+  assert.deepEqual(JSON.parse(called.init.body), { url: 'http://127.0.0.1:2786/webhook/openwa', secret: 'secret' });
+});

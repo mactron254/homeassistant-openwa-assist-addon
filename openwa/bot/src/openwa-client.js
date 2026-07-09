@@ -77,7 +77,10 @@ class OpenWaClient {
   createWebhook(sessionId, webhook) {
     return this.request('POST', `/api/sessions/${encodeURIComponent(sessionId)}/webhooks`, webhook);
   }
+
+  updateWebhook(sessionId, webhookId, webhook) {
+    return this.request('PUT', `/api/sessions/${encodeURIComponent(sessionId)}/webhooks/${encodeURIComponent(webhookId)}`, webhook);
+  }
 }
 
 module.exports = { OpenWaClient, AUDIO_MIMETYPE };
-

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9
+
+- Update existing OpenWA webhook on startup so signature secret stays in sync.
+- Fix HTTP 401 webhook delivery after option/API-key changes.
+
 ## 0.1.8
 
 - Run the helper as root so it can read Home Assistant /data/options.json reliably.

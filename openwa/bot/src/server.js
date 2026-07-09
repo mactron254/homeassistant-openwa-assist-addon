@@ -64,15 +64,20 @@ async function ensureOpenWaSetup() {
   } catch {
     await openwa.startSession(sessionId);
   }
+  const webhookPayload = {
+    url: WEBHOOK_URL,
+    events: ['message.received'],
+    secret: helperAuthKey(options),
+    retryCount: 3,
+  };
   const webhooks = await openwa.listWebhooks(sessionId).catch(() => []);
-  const exists = Array.isArray(webhooks) && webhooks.some(webhook => webhook.url === WEBHOOK_URL);
-  if (!exists) {
-    await openwa.createWebhook(sessionId, {
-      url: WEBHOOK_URL,
-      events: ['message.received'],
-      secret: helperAuthKey(options),
-      retryCount: 3,
-    });
+  const existing = Array.isArray(webhooks) ? webhooks.find(webhook => webhook.url === WEBHOOK_URL) : null;
+  if (existing?.id) {
+    await openwa.updateWebhook(sessionId, existing.id, webhookPayload);
+    console.log('[OpenWA Assist] webhook updated: ' + WEBHOOK_URL);
+  } else {
+    await openwa.createWebhook(sessionId, webhookPayload);
+    console.log('[OpenWA Assist] webhook created: ' + WEBHOOK_URL);
   }
 }
 
