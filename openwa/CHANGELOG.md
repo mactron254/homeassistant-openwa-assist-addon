@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10
+
+- Show configured Assist agent_id in helper health output for Gemini/default-agent debugging.
+
 ## 0.1.9
 
 - Update existing OpenWA webhook on startup so signature secret stays in sync.

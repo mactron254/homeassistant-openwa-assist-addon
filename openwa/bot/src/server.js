@@ -96,6 +96,7 @@ const server = http.createServer(async (req, res) => {
         helper: 'ok',
         assist_enabled: runtime.options.assist.enabled,
         language: runtime.options.assist.language,
+        agent_id: runtime.options.assist.agent_id,
         pipeline_id: runtime.options.assist.pipeline_id,
         device_id: runtime.options.assist.device_id,
         allowed_senders_count: runtime.options.allowed_senders.length,
