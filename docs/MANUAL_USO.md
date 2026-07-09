@@ -38,10 +38,11 @@ El helper del add-on mantiene:
 
 | Puerto | Uso |
 |---:|---|
-| `2785` | Dashboard/API nativa OpenWA. |
+| `2785` | Dashboard/API OpenWA por proxy limpio del add-on. |
 | `2786` | Helper API interno del bridge. |
+| `2787` | OpenWA interno dentro del contenedor. No se abre desde fuera. |
 
-La Web UI del add-on abre OpenWA nativo en:
+La Web UI del add-on abre OpenWA en `2785`. El add-on quita cabeceras CSP/HSTS que rompen HTTP local y deja el dashboard upstream sin panel propio:
 
 ```text
 http://[HOST]:2785/
@@ -134,7 +135,10 @@ Notas:
 - `api_master_key`: clave larga propia. Protege helper y, si `openwa_api_key` esta vacio, tambien se usa para OpenWA.
 - `openwa_api_key`: dejalo vacio salvo que quieras separar clave OpenWA y clave helper.
 - `session_id`: dejalo vacio. El helper crea/guarda sesion si puede.
-- `allowed_senders`: obligatorio para seguridad. OpenWA recibe chats; helper decide quien puede hablar con Assist.
+- `allowed_senders`: obligatorio para seguridad. Pon tu movil emisor con prefijo pais, sin `+`, espacios ni guiones. Ejemplo: `34600111222`. Tambien vale `34600111222@c.us`. No es `recipients.primary` ni el chat del panel; es quien puede mandar ordenes a Assist.
+- `assist.agent_id`: dejalo vacio si Gemini casa es el agente por defecto. Pon entity id solo si necesitas forzarlo, por ejemplo `conversation.google_generative_ai`.
+- `assist.pipeline_id`: dejalo vacio si el pipeline espanol es el preferido. Pon el ID exacto solo si quieres un pipeline dedicado de voz.
+- `assist.device_id`: dejalo vacio normalmente. Usalo solo si quieres que WhatsApp herede contexto de un dispositivo/area concreta de Assist.
 - No hace falta `recipients.primary`. Las respuestas normales vuelven al chat entrante.
 
 ## 6. Vincular WhatsApp

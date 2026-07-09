@@ -17,6 +17,9 @@ cleanup() {
   if [ -n "${BOT_PID:-}" ]; then
     kill "${BOT_PID}" 2>/dev/null || true
   fi
+  if [ -n "${PROXY_PID:-}" ]; then
+    kill "${PROXY_PID}" 2>/dev/null || true
+  fi
   if [ -n "${OPENWA_PID:-}" ]; then
     kill "${OPENWA_PID}" 2>/dev/null || true
   fi
@@ -43,7 +46,7 @@ LOG_LEVEL="$(read_option log_level "info")"
 ENGINE_TYPE="$(read_option engine_type "baileys")"
 
 export NODE_ENV=production
-export PORT=2785
+export PORT=2787
 export LOG_LEVEL="${LOG_LEVEL}"
 export DATABASE_TYPE=sqlite
 export DATABASE_NAME="/app/data/openwa.sqlite"
@@ -61,6 +64,7 @@ export QUEUE_ENABLED=false
 export WEBHOOK_TIMEOUT=10000
 export WEBHOOK_MAX_RETRIES=3
 export WEBHOOK_RETRY_DELAY=5000
+export SSRF_ALLOWED_HOSTS="${SSRF_ALLOWED_HOSTS:-127.0.0.1,localhost}"
 export BODY_SIZE_LIMIT="50mb"
 
 if [ -n "${API_MASTER_KEY}" ]; then
@@ -71,7 +75,7 @@ if [ -n "${OPENWA_API_KEY}" ]; then
   export API_MASTER_KEY="${OPENWA_API_KEY}"
 fi
 
-echo "[OpenWA Assist] Starting OpenWA API on port 2785"
+echo "[OpenWA Assist] Starting OpenWA API on internal port 2787"
 echo "[OpenWA Assist] Engine: ${ENGINE_TYPE}"
 echo "[OpenWA Assist] Data: ${OPENWA_DATA_DIR}"
 
@@ -82,7 +86,7 @@ OPENWA_PID="$!"
 echo "[OpenWA Assist] Waiting for OpenWA readiness..."
 OPENWA_READY=0
 for _ in $(seq 1 60); do
-  if curl -fsS "http://127.0.0.1:2785/api/health/ready" >/dev/null 2>&1 || curl -fsS "http://127.0.0.1:2785/api/health" >/dev/null 2>&1; then
+  if curl -fsS "http://127.0.0.1:2787/api/health/ready" >/dev/null 2>&1 || curl -fsS "http://127.0.0.1:2787/api/health" >/dev/null 2>&1; then
     echo "[OpenWA Assist] OpenWA is ready."
     OPENWA_READY=1
     break
@@ -102,6 +106,7 @@ if [ "${OPENWA_READY}" != "1" ]; then
 fi
 
 echo "[OpenWA Assist] Starting helper on port 2786"
+export OPENWA_BASE_URL="http://127.0.0.1:2787"
 if command -v gosu >/dev/null 2>&1 && id openwa >/dev/null 2>&1; then
   gosu openwa node "${BOT_DIR}/src/server.js" &
 else
@@ -109,5 +114,13 @@ else
 fi
 BOT_PID="$!"
 
-wait -n "${OPENWA_PID}" "${BOT_PID}"
+echo "[OpenWA Assist] Starting OpenWA dashboard proxy on port 2785"
+if command -v gosu >/dev/null 2>&1 && id openwa >/dev/null 2>&1; then
+  gosu openwa node "${BOT_DIR}/src/openwa-dashboard-proxy.js" &
+else
+  node "${BOT_DIR}/src/openwa-dashboard-proxy.js" &
+fi
+PROXY_PID="$!"
+
+wait -n "${OPENWA_PID}" "${BOT_PID}" "${PROXY_PID}"
 

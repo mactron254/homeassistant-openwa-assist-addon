@@ -4,14 +4,14 @@ Home Assistant add-on repository for OpenWA plus a WhatsApp bridge to Home Assis
 
 ## Overview
 
-- OpenWA API and dashboard on port `2785`.
+- OpenWA API and dashboard on port `2785` through a transparent header-cleaning proxy.
 - Bot helper API on port `2786`.
 - Home Assistant Assist is the only AI, STT, TTS, and home-control brain.
 - The add-on does not store Groq, Gemini, OpenRouter, OpenAI, or Google API keys.
 - WhatsApp text is sent to Home Assistant Conversation API.
 - WhatsApp voice notes are transcribed through Home Assistant Assist pipeline, then answered through the same Assist agent.
 - Optional `assist.device_id` lets WhatsApp inherit a future Voice Assist device/area context.
-- OpenWA dashboard stays upstream and unchanged.
+- OpenWA dashboard stays upstream and unchanged; only CSP/HSTS/frame headers are stripped at the add-on proxy.
 
 ## Install
 

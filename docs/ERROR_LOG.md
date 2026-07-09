@@ -90,3 +90,9 @@
 - Symptom: The add-on had a small helper UI even though OpenWA already provides the dashboard needed for QR and session management.
 - Cause: Extra UI duplicated OpenWA basics and made the add-on feel less minimal.
 - Resolution: Restored the Home Assistant Web UI target to OpenWA on port `2785`, removed helper UI routes/files, and kept the helper API in the background.
+
+## 2026-07-09 - Direct OpenWA URL blank on port 2785
+
+- Symptom: `http://192.168.50.120:2785/` returned HTML and assets returned `200`, but browser stayed white with only `<div id="root"></div>`.
+- Cause: Upstream OpenWA served CSP/HSTS headers including `upgrade-insecure-requests`; browsers can upgrade local HTTP asset/API loads to HTTPS and fail with `ERR_SSL_PROTOCOL_ERROR`. Helper webhook also failed because OpenWA SSRF guard rejected `127.0.0.1`.
+- Resolution: Run OpenWA internally on `2787`, expose `2785` through a transparent Node proxy that strips `Content-Security-Policy`, `Strict-Transport-Security`, and `X-Frame-Options`, and set `SSRF_ALLOWED_HOSTS=127.0.0.1,localhost` for helper webhook registration.

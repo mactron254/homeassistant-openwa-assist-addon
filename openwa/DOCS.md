@@ -4,8 +4,9 @@
 
 | Port | Purpose |
 |---:|---|
-| `2785` | OpenWA native API and dashboard. |
+| `2785` | OpenWA API/dashboard through the add-on clean proxy. |
 | `2786` | Helper API, webhook receiver, QR proxy, Assist test, send helper. |
+| `2787` | Internal OpenWA API/dashboard target inside the container. |
 
 ## Options
 
@@ -23,7 +24,7 @@
 
 ## OpenWA Dashboard
 
-The add-on Web UI opens the native OpenWA dashboard on `http://[HOST]:2785/`.
+The add-on Web UI opens the OpenWA dashboard on `http://[HOST]:2785/`. Port `2785` is a transparent proxy to internal OpenWA `2787`; it strips CSP/HSTS/frame headers that break local HTTP or Home Assistant embedding.
 
 Use that dashboard for QR/session management. The helper runs in the background and registers the OpenWA webhook automatically after OpenWA is ready.
 
