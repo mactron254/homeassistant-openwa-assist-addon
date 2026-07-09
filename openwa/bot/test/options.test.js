@@ -50,3 +50,9 @@ test('uses api_master_key as OpenWA key when dedicated key is empty', () => {
   assert.equal(readOpenWaApiKey({ api_master_key: 'helper-key', openwa_api_key: '' }), 'helper-key');
   assert.equal(readOpenWaApiKey({ api_master_key: 'helper-key', openwa_api_key: 'openwa-key' }), 'openwa-key');
 });
+
+test('finds allowed_senders in Home Assistant option variants', () => {
+  assert.deepEqual(normalizeWhatsapp({}, { allowed_senders: ['112446656221286@lid'] }).allowed_senders, ['112446656221286@lid']);
+  assert.deepEqual(normalizeWhatsapp({}, { whatsapp_allowed_senders: '112446656221286@lid' }).allowed_senders, ['112446656221286@lid']);
+  assert.deepEqual(normalizeWhatsapp({}, { whatsapp: { allowed_senders: { 0: '112446656221286@lid' } } }).allowed_senders, ['112446656221286@lid']);
+});

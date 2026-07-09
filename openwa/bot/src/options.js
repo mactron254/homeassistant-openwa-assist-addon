@@ -17,7 +17,7 @@ function readJson(file, fallback) {
 
 function loadOptions() {
   const raw = readJson(OPTIONS_PATH, {});
-  const whatsapp = normalizeWhatsapp(raw.whatsapp || {});
+  const whatsapp = normalizeWhatsapp(raw.whatsapp || {}, raw);
   const assist = normalizeAssist(raw.assist || {});
   return {
     api_master_key: raw.api_master_key || '',
@@ -31,10 +31,35 @@ function loadOptions() {
   };
 }
 
-function normalizeWhatsapp(value) {
+function normalizeWhatsapp(value, raw = {}) {
   return {
-    allowed_senders: arrayOption(value.allowed_senders, []).map(normalizeWhatsAppId).filter(Boolean),
+    allowed_senders: collectAllowedSenders(value, raw).map(normalizeWhatsAppId).filter(Boolean),
   };
+}
+
+function collectAllowedSenders(value, raw = {}) {
+  const candidates = [
+    value?.allowed_senders,
+    raw?.allowed_senders,
+    raw?.whatsapp_allowed_senders,
+    raw?.['whatsapp.allowed_senders'],
+  ];
+  collectNamedValues(raw, 'allowed_senders', candidates, new Set());
+  return [...new Set(candidates.flatMap(valueToList).filter(Boolean))];
+}
+
+function collectNamedValues(value, key, output, seen) {
+  if (!value || typeof value !== 'object' || seen.has(value)) return;
+  seen.add(value);
+  if (Object.prototype.hasOwnProperty.call(value, key)) output.push(value[key]);
+  for (const child of Object.values(value)) collectNamedValues(child, key, output, seen);
+}
+
+function valueToList(value) {
+  if (Array.isArray(value)) return value.flatMap(valueToList);
+  if (typeof value === 'string') return value.split(/[\n,]+/).map(item => item.trim());
+  if (value && typeof value === 'object') return Object.values(value).flatMap(valueToList);
+  return [];
 }
 
 function normalizeAssist(value) {

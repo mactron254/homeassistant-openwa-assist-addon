@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6
+
+- Make allowed_senders parsing tolerant of Home Assistant option storage variants.
+- Accept nested, flat, string, array, and object-list forms for allowed_senders.
+
 ## 0.1.5
 
 - Log normalized allowed_senders at helper startup and on blocked messages.
