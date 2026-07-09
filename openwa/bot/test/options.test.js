@@ -43,6 +43,7 @@ test('normalizes WhatsApp senders', () => {
 test('normalizes Baileys sender ids to OpenWA c.us ids', () => {
   assert.equal(normalizeWhatsAppId('34600111222@s.whatsapp.net'), '34600111222@c.us');
   assert.equal(normalizeWhatsAppId('120363111222333444@g.us'), '120363111222333444@g.us');
+  assert.equal(normalizeWhatsAppId('112446656221286@lid'), '112446656221286@lid');
 });
 
 test('uses api_master_key as OpenWA key when dedicated key is empty', () => {

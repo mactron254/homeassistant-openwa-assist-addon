@@ -135,7 +135,7 @@ Notas:
 - `api_master_key`: clave larga propia. Protege helper y, si `openwa_api_key` esta vacio, tambien se usa para OpenWA.
 - `openwa_api_key`: dejalo vacio salvo que quieras separar clave OpenWA y clave helper.
 - `session_id`: dejalo vacio. El helper crea/guarda sesion si puede.
-- `allowed_senders`: obligatorio para seguridad. Pon tu movil emisor con prefijo pais, sin `+`, espacios ni guiones. Ejemplo: `34600111222`. Tambien vale `34600111222@c.us`. No es `recipients.primary` ni el chat del panel; es quien puede mandar ordenes a Assist.
+- `allowed_senders`: obligatorio para seguridad. Pon tu movil emisor con prefijo pais, sin `+`, espacios ni guiones. Ejemplo: `34600111222`. Tambien vale `34600111222@c.us`. Si Baileys/OpenWA muestra el remitente como `112446656221286@lid`, pon ese `@lid` exacto tambien. No es `recipients.primary` ni el chat del panel; es quien puede mandar ordenes a Assist.
 - `assist.agent_id`: dejalo vacio si Gemini casa es el agente por defecto. Pon entity id solo si necesitas forzarlo, por ejemplo `conversation.google_generative_ai`.
 - `assist.pipeline_id`: dejalo vacio si el pipeline espanol es el preferido. Pon el ID exacto solo si quieres un pipeline dedicado de voz.
 - `assist.device_id`: dejalo vacio normalmente. Usalo solo si quieres que WhatsApp herede contexto de un dispositivo/area concreta de Assist.
@@ -319,6 +319,7 @@ No pongas `shopping_list:` en YAML si Home Assistant ya la importa desde UI.
 ### Mensajes WhatsApp no responden
 
 - Comprueba que el numero esta en `whatsapp.allowed_senders`.
+- Si el log dice `Message received from ...@lid` o `unauthorized sender ignored: ...@lid`, anade ese valor exacto a `allowed_senders`.
 - Usa formato `34XXXXXXXXX` o `34XXXXXXXXX@c.us`.
 - Comprueba que la sesion OpenWA esta ready.
 - Revisa que el webhook se haya registrado.

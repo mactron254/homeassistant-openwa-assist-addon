@@ -96,3 +96,9 @@
 - Symptom: `http://192.168.50.120:2785/` returned HTML and assets returned `200`, but browser stayed white with only `<div id="root"></div>`.
 - Cause: Upstream OpenWA served CSP/HSTS headers including `upgrade-insecure-requests`; browsers can upgrade local HTTP asset/API loads to HTTPS and fail with `ERR_SSL_PROTOCOL_ERROR`. Helper webhook also failed because OpenWA SSRF guard rejected `127.0.0.1`.
 - Resolution: Run OpenWA internally on `2787`, expose `2785` through a transparent Node proxy that strips `Content-Security-Policy`, `Strict-Transport-Security`, and `X-Frame-Options`, and set `SSRF_ALLOWED_HOSTS=127.0.0.1,localhost` for helper webhook registration.
+
+## 2026-07-09 - Webhook delivered but WhatsApp got no reply
+
+- Symptom: OpenWA showed webhook active and delivered, but WhatsApp got no answer.
+- Cause: Baileys delivered sender as `112446656221286@lid`; configured `allowed_senders` only had the phone number, so helper ignored the message as unauthorized.
+- Resolution: Add the exact trusted `@lid` sender shown in logs to `whatsapp.allowed_senders`; helper now logs ignored senders explicitly.

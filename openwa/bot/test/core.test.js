@@ -51,3 +51,8 @@ test('extracts nested Baileys messages from OpenWA payload', () => {
 test('allows Baileys sender when configured as phone number', () => {
   assert.equal(isAllowedSender({ from: '34600111222@s.whatsapp.net' }, ['+34 600 111 222']), true);
 });
+
+test('allows Baileys LID sender when configured explicitly', () => {
+  assert.equal(isAllowedSender({ from: '112446656221286@lid' }, ['112446656221286@lid']), true);
+});
+

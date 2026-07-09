@@ -28,7 +28,10 @@ class AssistBot {
     for (const item of items) {
       const message = item.message;
       if (message.fromMe || message.isStatusBroadcast) continue;
-      if (!isAllowedSender(message, this.options.allowed_senders)) continue;
+      if (!isAllowedSender(message, this.options.allowed_senders)) {
+        console.warn(`[OpenWA Assist] unauthorized sender ignored: ${senderFromMessage(message)}. Add it to whatsapp.allowed_senders if trusted.`);
+        continue;
+      }
       const chatId = message.chatId || message.from;
       const sessionId = item.sessionId || this.options.session_id;
       if (!chatId || !sessionId) continue;

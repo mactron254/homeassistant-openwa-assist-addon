@@ -12,7 +12,7 @@
 
 `api_master_key` protects helper endpoints and is also used as the OpenWA API key when `openwa_api_key` is empty.
 
-`whatsapp.allowed_senders` lists allowed WhatsApp JIDs or phone numbers. This whitelist is required because OpenWA receives messages from any linked chat, but only trusted senders should reach Home Assistant Assist.
+`whatsapp.allowed_senders` lists allowed WhatsApp JIDs, phone numbers, or Baileys LID values such as `112446656221286@lid`. This whitelist is required because OpenWA receives messages from any linked chat, but only trusted senders should reach Home Assistant Assist.
 
 `assist.agent_id` selects a Home Assistant conversation agent. Empty uses Home Assistant default.
 
