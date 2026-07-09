@@ -34,9 +34,14 @@ class AssistBot {
       }
       const chatId = message.chatId || message.from;
       const sessionId = item.sessionId || this.options.session_id;
-      if (!chatId || !sessionId) continue;
+      if (!chatId || !sessionId) {
+        console.warn('[OpenWA Assist] message ignored: missing chatId/sessionId sender=' + senderFromMessage(message) + ' chatId=' + (chatId || '') + ' sessionId=' + (sessionId || ''));
+        continue;
+      }
+      console.log('[OpenWA Assist] handling message sender=' + senderFromMessage(message) + ' chatId=' + chatId + ' sessionId=' + sessionId);
       const response = await this.handleMessage(message);
       await this.sendReply({ response, sessionId, chatId });
+      console.log('[OpenWA Assist] reply sent chatId=' + chatId);
     }
   }
 

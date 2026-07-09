@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4
+
+- Expose OpenWA through the header-cleaning dashboard proxy on port 2785.
+- Keep OpenWA internal on port 2787 and allow local helper webhook registration.
+- Log ignored WhatsApp senders, including Baileys @lid identifiers, so allowed_senders can be corrected.
+
 ## 0.1.3
 
 - Restored add-on Web UI to the native OpenWA dashboard on port `2785`.
