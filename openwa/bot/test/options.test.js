@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { normalizeAssist, normalizeWhatsapp } = require('../src/options');
+const { normalizeAssist, normalizeWhatsapp, normalizeWhatsAppId, readOpenWaApiKey } = require('../src/options');
 
 test('normalizes clean Assist config', () => {
   const assist = normalizeAssist({
@@ -22,13 +22,30 @@ test('normalizes clean Assist config', () => {
   assert.equal(assist.audio.max_audio_seconds, 60);
 });
 
-test('normalizes WhatsApp senders and recipients', () => {
+test('default safety patterns include energy critical controls', () => {
+  const assist = normalizeAssist({});
+
+  assert.ok(assist.safety.confirm_before_patterns.includes('v2c'));
+  assert.ok(assist.safety.confirm_before_patterns.includes('saj'));
+  assert.ok(assist.safety.confirm_before_patterns.includes('bateria'));
+  assert.ok(assist.safety.confirm_before_patterns.includes('cargador'));
+  assert.ok(assist.safety.confirm_before_patterns.includes('garaje'));
+});
+
+test('normalizes WhatsApp senders', () => {
   const whatsapp = normalizeWhatsapp({
     allowed_senders: ['+34 600 111 222', '34600222333@c.us'],
-    recipients: { primary: '+34 600 111 222' },
   });
 
   assert.deepEqual(whatsapp.allowed_senders, ['34600111222@c.us', '34600222333@c.us']);
-  assert.deepEqual(whatsapp.recipients, [{ name: 'primary', chat_id: '34600111222@c.us' }]);
 });
 
+test('normalizes Baileys sender ids to OpenWA c.us ids', () => {
+  assert.equal(normalizeWhatsAppId('34600111222@s.whatsapp.net'), '34600111222@c.us');
+  assert.equal(normalizeWhatsAppId('120363111222333444@g.us'), '120363111222333444@g.us');
+});
+
+test('uses api_master_key as OpenWA key when dedicated key is empty', () => {
+  assert.equal(readOpenWaApiKey({ api_master_key: 'helper-key', openwa_api_key: '' }), 'helper-key');
+  assert.equal(readOpenWaApiKey({ api_master_key: 'helper-key', openwa_api_key: 'openwa-key' }), 'openwa-key');
+});

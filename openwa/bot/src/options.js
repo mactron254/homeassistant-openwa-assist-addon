@@ -28,14 +28,12 @@ function loadOptions() {
     whatsapp,
     assist,
     allowed_senders: whatsapp.allowed_senders,
-    recipients: whatsapp.recipients,
   };
 }
 
 function normalizeWhatsapp(value) {
   return {
     allowed_senders: arrayOption(value.allowed_senders, []).map(normalizeWhatsAppId).filter(Boolean),
-    recipients: normalizeRecipients(value.recipients || {}),
   };
 }
 
@@ -60,23 +58,36 @@ function normalizeAssist(value) {
         'desbloquea',
         'cerradura',
         'alarma',
+        'garaje',
         'abre garaje',
         'abre puerta',
+        'v2c',
+        'saj',
+        'bateria',
+        'cargador',
+        'climatizacion',
       ]),
     },
   };
 }
 
-function normalizeRecipients(value) {
-  return Object.entries(value || {})
-    .filter(([, chatId]) => chatId)
-    .map(([name, chatId]) => ({ name, chat_id: normalizeWhatsAppId(chatId) }));
-}
 
 function normalizeWhatsAppId(value) {
   const text = String(value || '').trim();
   if (!text) return '';
-  if (text.includes('@')) return text;
+  const lower = text.toLowerCase();
+  if (lower.includes('@')) {
+    const [local, domain] = lower.split('@');
+    if (domain === 'c.us' || domain === 's.whatsapp.net') {
+      const digits = local.replace(/[^\d]/g, '');
+      return digits ? `${digits}@c.us` : '';
+    }
+    if (domain === 'g.us') {
+      const group = local.replace(/[^0-9-]/g, '');
+      return group ? `${group}@g.us` : '';
+    }
+    return lower;
+  }
   const digits = text.replace(/[^\d]/g, '');
   return digits ? `${digits}@c.us` : '';
 }
@@ -110,6 +121,7 @@ function saveSessionId(sessionId) {
 
 function readOpenWaApiKey(options = loadOptions()) {
   if (options.openwa_api_key) return options.openwa_api_key;
+  if (options.api_master_key) return options.api_master_key;
   try {
     return fs.readFileSync(path.join(OPENWA_DATA_DIR, '.api-key'), 'utf8').trim();
   } catch {
@@ -133,4 +145,3 @@ module.exports = {
   helperAuthKey,
   saveSessionId,
 };
-

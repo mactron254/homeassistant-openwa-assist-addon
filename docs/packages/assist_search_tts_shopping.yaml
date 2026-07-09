@@ -1,0 +1,37 @@
+# Home Assistant package: Assist Google Search script
+#
+# Install:
+# 1. Copy this file to /config/packages/assist_search_tts_shopping.yaml.
+# 2. Ensure configuration.yaml has:
+#    homeassistant:
+#      packages: !include_dir_named packages
+# 3. Replace conversation.google_generative_ai_2 with your Gemini search-only agent.
+# 4. Do not add shopping_list: here; HA imports Shopping List through UI.
+# 5. Restart Home Assistant or reload YAML where possible.
+
+script:
+  assist_buscar_en_google:
+    alias: "Assist: Search Google"
+    description: >-
+      Busca en Google con un segundo agente Gemini sin control de Home Assistant.
+      Usalo solo para internet, actualidad, recetas, precios, noticias o datos no
+      presentes en la casa.
+    fields:
+      query:
+        name: Query
+        description: Pregunta exacta para buscar en internet.
+        required: true
+        selector:
+          text: null
+    sequence:
+      - action: conversation.process
+        data:
+          agent_id: conversation.google_generative_ai_2
+          text: "{{ query }}"
+        response_variable: result
+      - variables:
+          result:
+            response: "{{ result.response.speech.plain.speech }}"
+      - stop: ""
+        response_variable: result
+    mode: single

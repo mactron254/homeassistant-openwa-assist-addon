@@ -12,6 +12,7 @@ const {
   isConfirm,
   isAudioRequest,
   isNegativeAudioRequest,
+  openWaMessagesFromPayload,
 } = require('./core');
 
 class AssistBot {
@@ -23,15 +24,17 @@ class AssistBot {
   }
 
   async handleOpenWaPayload(payload) {
-    if (payload.event !== 'message.received') return;
-    const message = payload.data || {};
-    if (message.fromMe || message.isStatusBroadcast) return;
-    if (!isAllowedSender(message, this.options.allowed_senders)) return;
-    const chatId = message.chatId || message.from;
-    const sessionId = payload.sessionId || this.options.session_id;
-    if (!chatId || !sessionId) return;
-    const response = await this.handleMessage(message);
-    await this.sendReply({ response, sessionId, chatId });
+    const items = openWaMessagesFromPayload(payload, this.options.session_id);
+    for (const item of items) {
+      const message = item.message;
+      if (message.fromMe || message.isStatusBroadcast) continue;
+      if (!isAllowedSender(message, this.options.allowed_senders)) continue;
+      const chatId = message.chatId || message.from;
+      const sessionId = item.sessionId || this.options.session_id;
+      if (!chatId || !sessionId) continue;
+      const response = await this.handleMessage(message);
+      await this.sendReply({ response, sessionId, chatId });
+    }
   }
 
   async handleMessage(message) {

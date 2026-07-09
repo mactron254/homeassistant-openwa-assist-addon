@@ -88,6 +88,7 @@ test('audio response sends text and WhatsApp voice note', async () => {
 
 test('matches critical patterns accent-insensitively', () => {
   assert.equal(matchesCriticalPattern('Ábre garaje', ['abre garaje']), true);
+  assert.equal(matchesCriticalPattern('abre el garaje', ['garaje']), true);
 });
 
 function payload(body) {

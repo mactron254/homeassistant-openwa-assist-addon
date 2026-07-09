@@ -17,10 +17,17 @@ Home Assistant add-on repository for OpenWA plus a WhatsApp bridge to Home Assis
 
 1. Add this repository to Home Assistant Add-on Store.
 2. Install **OpenWA Assist Bridge**.
-3. Configure `whatsapp.allowed_senders`.
-4. Configure Home Assistant Voice Assist with a Spanish pipeline, STT, TTS, and conversation agent.
+3. Configure `api_master_key` and `whatsapp.allowed_senders`.
+4. Configure Home Assistant Assist: Gemini house agent with Control Home Assistant ON, Search OFF, Spanish pipeline `es`, and STT/TTS in Home Assistant only if you want audio.
 5. Expose the entities and scripts you want Assist to control.
-6. Start the add-on and link WhatsApp from the OpenWA dashboard.
+6. Start the add-on and open the add-on Web UI.
+7. Link WhatsApp from the native OpenWA dashboard QR.
+
+Manual completo: [docs/MANUAL_USO.md](docs/MANUAL_USO.md).
+
+Full HA setup: [docs/ASSIST_ES_SETUP.md](docs/ASSIST_ES_SETUP.md).
+
+CSV-derived entity plan: [docs/ASSIST_ENTITY_PLAN.md](docs/ASSIST_ENTITY_PLAN.md).
 
 ## Helper API
 
@@ -30,10 +37,12 @@ Protected endpoints require `X-API-Key`.
 - `GET /health`
 - `GET /qr`
 - `POST /webhook/openwa`
+- `POST /assist/test`
+- `POST /assist/send`
 - `POST /send`
-- `POST /send/{alias}`
 
 ## Security
 
 Home Assistant controls permissions through exposed Assist entities/scripts. The add-on also blocks configured WhatsApp senders and asks for `SI` before forwarding locally configured critical text patterns.
 
+AI provider keys stay in Home Assistant integrations. This add-on does not store Gemini, Groq, OpenAI, OpenRouter, or Google keys.

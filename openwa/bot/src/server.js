@@ -2,7 +2,7 @@
 'use strict';
 
 const http = require('node:http');
-const { loadOptions, readOpenWaApiKey, helperAuthKey, saveSessionId } = require('./options');
+const { loadOptions, readOpenWaApiKey, helperAuthKey, saveSessionId, normalizeWhatsAppId } = require('./options');
 const { verifyOpenWaSignature } = require('./core');
 const { OpenWaClient } = require('./openwa-client');
 const { AssistClient } = require('./assist-client');
@@ -81,7 +81,7 @@ const server = http.createServer(async (req, res) => {
     const runtime = await createRuntime();
 
     if (req.method === 'GET' && url.pathname === '/') {
-      html(res, 200, '<h1>OpenWA Assist</h1><p>Bot activo. Usa OpenWA dashboard en el puerto 2785.</p>');
+      html(res, 200, '<h1>OpenWA Assist</h1><p>Bot activo. Usa el dashboard OpenWA en el puerto 2785 para QR y sesion.</p>');
       return;
     }
 
@@ -113,13 +113,36 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (req.method === 'POST' && (url.pathname === '/send' || url.pathname.startsWith('/send/'))) {
+    if (req.method === 'POST' && (url.pathname === '/assist/test' || url.pathname === '/assist/send')) {
       if (!authorized(req, runtime.options)) return json(res, 401, { error: 'unauthorized' });
       const body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
-      const alias = url.pathname.startsWith('/send/') ? url.pathname.slice('/send/'.length) : '';
-      const recipient = alias
-        ? runtime.options.recipients.find(item => item.name === alias)?.chat_id
-        : body.chat_id || body.chatId;
+      const text = String(body.message || body.text || body.query || '').trim();
+      if (!text) return json(res, 400, { error: 'missing_text' });
+      const chatId = resolveChatId(runtime.options, body);
+      const sender = normalizeWhatsAppId(body.sender || body.sender_id || chatId || runtime.options.allowed_senders[0] || '') || 'manual@local';
+      const response = await runtime.bot.handleMessage({
+        id: 'manual-assist-test',
+        from: sender,
+        chatId: chatId || sender,
+        body: text,
+        type: 'text',
+      });
+      const payload = assistResponsePayload(response);
+      if (url.pathname === '/assist/test') {
+        json(res, 200, payload);
+        return;
+      }
+      if (!chatId) return json(res, 400, { error: 'missing_chat_id' });
+      const sessionId = String(body.session_id || body.sessionId || runtime.options.session_id || '').trim();
+      if (!sessionId) return json(res, 409, { error: 'missing_session_id' });
+      await runtime.bot.sendReply({ response, sessionId, chatId });
+      json(res, 200, { ...payload, sent: true, chat_id: chatId, session_id: sessionId });
+      return;
+    }
+    if (req.method === 'POST' && url.pathname === '/send') {
+      if (!authorized(req, runtime.options)) return json(res, 401, { error: 'unauthorized' });
+      const body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
+      const recipient = normalizeWhatsAppId(body.chat_id || body.chatId || body.to || '');
       if (!recipient) return json(res, 400, { error: 'missing_chat_id' });
       json(res, 200, await runtime.openwa.sendText(runtime.options.session_id, recipient, body.message || body.text || ''));
       return;
@@ -133,11 +156,25 @@ const server = http.createServer(async (req, res) => {
 });
 
 function authorized(req, options) {
-  return req.headers['x-api-key'] === helperAuthKey(options);
+  const secret = helperAuthKey(options);
+  return Boolean(secret) && req.headers['x-api-key'] === secret;
+}
+
+function resolveChatId(options, body = {}) {
+  const direct = body.chat_id || body.chatId || body.to || '';
+  if (direct) return normalizeWhatsAppId(direct);
+  return normalizeWhatsAppId(options.allowed_senders[0] || '');
+}
+
+function assistResponsePayload(response = {}) {
+  return {
+    text: response.text || '',
+    has_audio: Boolean(response.tts_output),
+    transcript: response.transcript || '',
+  };
 }
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`[OpenWA Assist] Listening on ${PORT}`);
   ensureOpenWaSetup().catch(error => console.error('[OpenWA Assist] setup failed:', error));
 });
-
