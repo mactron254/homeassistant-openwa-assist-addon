@@ -107,11 +107,8 @@ fi
 
 echo "[OpenWA Assist] Starting helper on port 2786"
 export OPENWA_BASE_URL="http://127.0.0.1:2787"
-if command -v gosu >/dev/null 2>&1 && id openwa >/dev/null 2>&1; then
-  gosu openwa node "${BOT_DIR}/src/server.js" &
-else
-  node "${BOT_DIR}/src/server.js" &
-fi
+# Keep helper as root so it can read Home Assistant /data/options.json.
+node "${BOT_DIR}/src/server.js" &
 BOT_PID="$!"
 
 echo "[OpenWA Assist] Starting OpenWA dashboard proxy on port 2785"

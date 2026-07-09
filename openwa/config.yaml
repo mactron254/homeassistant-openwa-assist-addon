@@ -1,5 +1,5 @@
 name: OpenWA Assist Bridge
-version: "0.1.7"
+version: "0.1.8"
 slug: openwa_assist
 description: OpenWA WhatsApp gateway bridged to Home Assistant Assist
 url: https://github.com/mactron254/homeassistant-openwa-assist-addon

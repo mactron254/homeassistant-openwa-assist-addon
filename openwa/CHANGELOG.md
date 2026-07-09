@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.8
+
+- Run the helper as root so it can read Home Assistant /data/options.json reliably.
+- Keep OpenWA data directories owned by openwa as before.
+
 ## 0.1.7
 
 - Add top-level allowed_senders option as a Home Assistant UI compatibility path.
