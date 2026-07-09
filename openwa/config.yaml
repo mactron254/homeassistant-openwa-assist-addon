@@ -1,5 +1,5 @@
 name: OpenWA Assist Bridge
-version: "0.1.6"
+version: "0.1.7"
 slug: openwa_assist
 description: OpenWA WhatsApp gateway bridged to Home Assistant Assist
 url: https://github.com/mactron254/homeassistant-openwa-assist-addon
@@ -33,6 +33,7 @@ options:
   session_id: ""
   log_level: "info"
   engine_type: "baileys"
+  allowed_senders: []
   whatsapp:
     allowed_senders: []
   assist:
@@ -67,6 +68,8 @@ schema:
   session_id: str?
   log_level: list(debug|info|warn|error)
   engine_type: list(baileys|whatsapp-web.js)
+  allowed_senders:
+    - str
   whatsapp:
     allowed_senders:
       - str

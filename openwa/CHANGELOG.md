@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7
+
+- Add top-level allowed_senders option as a Home Assistant UI compatibility path.
+- Keep whatsapp.allowed_senders supported for existing configs.
+
 ## 0.1.6
 
 - Make allowed_senders parsing tolerant of Home Assistant option storage variants.
