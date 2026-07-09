@@ -44,6 +44,7 @@ async function createRuntime() {
 
 async function ensureOpenWaSetup() {
   const { options, openwa } = await createRuntime();
+  console.log('[OpenWA Assist] loaded allowed_senders=' + JSON.stringify(options.allowed_senders || []));
   if (!openwa.apiKey) {
     console.log('[OpenWA Assist] OpenWA API key not available yet; setup skipped.');
     return;
@@ -92,6 +93,8 @@ const server = http.createServer(async (req, res) => {
         language: runtime.options.assist.language,
         pipeline_id: runtime.options.assist.pipeline_id,
         device_id: runtime.options.assist.device_id,
+        allowed_senders_count: runtime.options.allowed_senders.length,
+        allowed_senders: runtime.options.allowed_senders,
       });
       return;
     }

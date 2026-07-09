@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5
+
+- Log normalized allowed_senders at helper startup and on blocked messages.
+- Expose loaded allowed_senders through helper health for setup debugging.
+
 ## 0.1.4
 
 - Expose OpenWA through the header-cleaning dashboard proxy on port 2785.
